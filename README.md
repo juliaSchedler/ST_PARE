@@ -1,4 +1,5 @@
 # Spatial-Temporal Extreme Modeling for Point-to-Area Random Effects (PARE)
+Presented May 2023 at SDSS, submitted to accompanying _Journal of Data Science_ special issue. 
 
 ## Authors
 - Carlynn Fagnant, PhD
