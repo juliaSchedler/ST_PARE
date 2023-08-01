@@ -1,0 +1,244 @@
+# Fitting GPD to moving windows
+
+The methodology used here is described in \cite{fagnant_characterizing_2020}. If fitting to more rolling windows than described in the paper this material accompanies, you will need to run this code to generate the object `window`.
+
+## Setup and Declustering
+
+```{r}
+#| label: decluster
+#| message: false
+#| eval: false
+# Recall PRCP = Precipitation is measured as "tenths of mm"   (254 = 1 inch)
+# To get inches: x/254
+# To get mm: x/10
+
+library(lubridate)
+library(extRemes)
+library(stats)
+library(dplyr)
+library(xts)
+library(gnFit)
+library(ismev)
+# library(tseries)
+# library(trend)
+# library(astsa)
+# library(ggmap)
+
+
+# Load in the precipitation data
+precip <- read.csv("../scrape-NOAA-data/Data/all_stations_precip_UDP_updated_2021.csv")  
+
+### Declustering
+precip_dclust = precip
+for ( i in seq(from=2, to=length(precip[1,]))){
+  station = precip[,i]
+  non_na = which(station>=0)
+  station[is.na(station)] <- 0
+  
+  dec = extRemes::decluster(station, threshold=0, clusterfun = "max", replace.with = 0)
+  stat_clus = as.numeric(dec)
+  
+  station = stat_clus
+  precip_dclust[non_na,i] = station[non_na]
+}
+
+### format
+precip_dclust[,1] <- lubridate::ymd(as.character(precip_dclust[,1])) #put Date column into date format
+precip_dclust <- as.data.frame(precip_dclust) #make it a data frame
+
+### Set threshold
+thresh <- 253   # for 1-day
+```
+
+## Fit GPD to entire series by station
+
+```{r}
+#| label: gpd_all
+#| warning: false
+#| message: false
+#| eval: false
+
+## NOTE: suppressing some warnings and errors which do not impact the analysis-- they are an artifact of the extent/format of the data (e.g. NAs from before stations were collecting data)
+
+# Distribution Fits -------------------------------------------------------
+
+numstat <- numrow <- 601 #stations
+#numcol <- 79 #moving windows (this number will change with the new data since we have more years, old data was 1900-2017)
+numcol <- (2020-39)-1900 +1 
+  #2020-39 will get the starting year for the last window
+  #1900 is the starting year but it is not counted in the math, hence the +1
+
+source("Code/HelperFunctions_GPD/fitgpdR.R")
+
+# Fit to entire station length --------------------------------------------
+
+# Fitting GPD to entire length of data for each station
+fullfits <- fitgpdR(precip_dclust, thresh)
+# which(is.na(fullfits))  # only a few are NA
+
+
+
+source("Code/HelperFunctions_GPD/gof.R")
+source("Code/HelperFunctions_GPD/data_no_na.R")
+source("Code/HelperFunctions_GPD/gof_fix_error.R")
+fulldata_no_na <- data_no_na(precip_dclust, thresh)  # saving data corresponding to fullfits
+
+## Goodness of fit measures
+CVMp <- ADp <- NULL
+for(h in c(1:numstat)){ # for some reason 481 was not working with gof fn, so use gof_fix_error  #but it has <1 year in length so will be eliminated anyway
+  if(!sum(is.na(fullfits[[h]]))){
+    gof_h <- gof_fix_error(fulldata_no_na[[h]], dist="gpd", pr=fullfits[[h]]$results$par, threshold=thresh)
+    CVMp[h] <- gof_h$Wpval
+    ADp[h]  <- gof_h$Apval
+  }else{
+    CVMp[h] <- ADp[h]  <- NA
+  }
+}
+```
+
+## GPD moving window fits
+
+This code chunk generates the "window" file which is the starting point for the PARE model. It will take some time to run and the resulting file is about 1.6 Gb.
+
+```{r}
+#| label: gpd-window
+#| eval: false
+# All Stations - 40-Year Windows ------------------------------------------
+
+# Eventually we will want these fits for all of the 40-year windows, but for now we can just fit to the most recent 40 years.
+
+
+### Uncomment if you want to run from scratch- Note: will take about an hour
+### You can instead load the .rds file below to load a saved copy (see readRDS line below)
+
+# ### 40-YEAR MOVING WINDOWS ///////////////
+#numcol <- 79 #windows of 40
+numcol <- (2020-39)-1900 +1 
+startday <- "-01-01"
+endday <- "-12-31"
+window <- list()
+labelyr <- NULL   # end year of window
+
+# to access window j, gpdfit for station i, use window[[j]][[i]]
+
+startyr <- 1900
+## Takes awhile to run
+# for(j in 1:numcol){
+#   start <- paste0(startyr, startday)
+#   endyr <- startyr + 39
+#   end <- paste0(endyr, endday)
+#   labelyr[j] <- lubridate::year(as.Date(end))
+# 
+#   start <- which(precip_dclust$Date==start)  #finding indexes corresponding to start & end dates
+#   end   <- which(precip_dclust$Date==end)
+#   sub <- precip_dclust[start:end, ]  #subset data to those 40 years
+#   window[[j]] <- fitgpdR(sub, thresh)   # GPD fit with extRemes package
+# 
+#   startyr <- startyr + 1
+# }
+# 
+
+## Large file-- takes time to save/load
+#saveRDS(window, file="Data/window_1day_dclust_updated.rds")
+
+#window <- readRDS(file="Data/window_1day_dclust_updated.rds")
+## file too big for quarto to load-- could try some of the solutions listed 
+
+```
+
+## Calculate return levels
+
+Using the GPD parameter estimates to calculate the return level estimates.
+
+```{r}
+#| label: return-levels
+#| eval: false
+# Saving Return Levels for Easy Plotting ----------------------------------
+
+# in mm
+# this is set up differently for easier plotting
+# saving vector of RLs for each station across 79 windows
+
+trend_RL <- list()
+for(i in 1:numstat){
+  RL <- NULL
+  for(j in 1:numcol){
+    fit <- window[[j]][[i]]
+    if(!sum(is.na(fit)) == TRUE){
+      RL[j] <- extRemes::return.level(fit, return.period=100)/10  # divide by 10 to get mm
+    }else{
+      RL[j] <- NA
+    }
+  }
+  trend_RL[[i]] <- RL
+}
+
+# trend_RL[[588]] # Hobby
+
+trend_RL_25 <- list()
+trend_RL_100 <- list()
+trend_RL_500 <- list()
+for(i in 1:numstat){
+  RL_25 <- RL_100 <- RL_500 <- NULL
+  for(j in 1:numcol){
+    fit <- window[[j]][[i]]
+    if(!sum(is.na(fit)) == TRUE){
+      RL_25[j] <- extRemes::return.level(fit, return.period=25)/10  # divide by 10 to get mm
+      RL_100[j] <- extRemes::return.level(fit, return.period=100)/10  # divide by 10 to get mm
+      RL_500[j] <- extRemes::return.level(fit, return.period=500)/10  # divide by 10 to get mm
+    }else{
+      RL_25[j] <- RL_100[j] <- RL_500[j] <- NA
+    }
+  }
+  trend_RL_25[[i]]  <- RL_25
+  trend_RL_100[[i]] <- RL_100
+  trend_RL_500[[i]] <- RL_500
+}
+
+
+#labelyr <- 1939:2017
+labelyr <- 1939:2020
+
+
+```
+
+## Goodness of fit measures
+
+This code chunk performs goodness of fit tests to determine for each of the rolling windows which of the stations have achieved a good fit to the GPD distribution. These goodness-of-fit results are used in the extreme value model fitting process as part of the data cleaning. The spatial models are only applied to stations which do not show evidence of a lack of GPD fit for a particular window.
+
+```{r}
+#| label: gof-window
+#| eval: false
+
+# Goodness of Fit ---------------------------------------------------------
+# Now going to do GOF for ALL stations, for EACH WINDOW FIT
+### Should save RDS to access saved output instead of having to run again
+window_CVM <- matrix(nrow = numstat, ncol = numcol)
+window_AD <- matrix(nrow = numstat, ncol = numcol)
+for(j in 1:numcol){
+  CVMp <- ADp <- NULL
+  for(i in 1:numstat){
+    fit <- window[[j]][[i]]
+    if(!sum(is.na(fit)) == TRUE){
+      gof_h <- gof_fix_error(fit$x, dist="gpd", pr=fit$results$par, threshold=thresh)   # New gof function which corrects for errors by rounding
+      CVMp[i] <- gof_h$Wpval
+      ADp[i] <- gof_h$Apval
+    }else{
+      CVMp[i] <- ADp[i] <- NA
+    }
+  }
+  window_CVM[, j] <- CVMp
+  window_AD[, j] <- ADp
+}
+window_CVM <- as.data.frame(window_CVM)
+window_AD <- as.data.frame(window_AD)
+
+ # saveRDS(window_CVM, file="Data/window_CVM_updated.rds")
+ # saveRDS(window_AD, file="Data/window_AD_updated.rds")
+
+window_CVM <- readRDS("Data/window_CVM_updated.rds")
+window_AD <- readRDS("Data/window_AD_updated.rds")
+
+# window_CVM[i, j] gives CVM (Cramer Von Mises) p-value for station i, window j  (similar for AD is Anderson Darling)
+# window[[j]][[i]] gives gpd fit output for station i, window j
+```

@@ -1,0 +1,9 @@
+# Point-to-Area Random Effects {.unnumbered}
+
+Link to this [project's Github Repo](https://github.com/juliaSchedler/ST_PARE) (contains all datasets).
+
+This site is a guided tutorial on fitting the Point-to-Area Random Effects model as part of the paper "Spatial-Temporal Extreme Modeling for Point-to-Area Random Effects (PARE)", presented at SDSS 2023 and submitted to the accompanying special issue of the Journal of Data Science.
+
+This paper concerns how to model extreme values when data are available at the point level, but results are desired at the area level.
+
+![A map of the rainfall gauges (point-level data) and the hydrologic regions (areal data) used in the analysis.](Data/stations_region_map_new.png){fig-alt="A map showing rain gauges as points and hydrologic regions as shaded areas. There are many points and three regions. Harris County (Houston, TX)."}

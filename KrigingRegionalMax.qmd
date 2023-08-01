@@ -1,0 +1,8 @@
+---
+title: Block Kriging and Regional Max code
+execute:
+    freeze: true
+---
+The code in the previous few files has been curated for ease-of-use with a focus on the PARE model, which is the novel part of the paper.
+
+Code for all three models PARE, Block Kriging, and Regional Max methods the full analysis as originally included in \cite{fagnant_spatiotemporal_2021} is available [on Github.](https://github.com/carly-fagnant/Spatial_Extreme_Value_Modeling)

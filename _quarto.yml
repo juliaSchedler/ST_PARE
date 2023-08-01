@@ -1,0 +1,25 @@
+project:
+  type: book
+
+book:
+  title: "PARE Model"
+  author: "Carlynn Fagnant, Julia C. Schedler, Katherine B. Ensor"
+  date: "7/14/2023"
+  chapters:
+    - index.qmd
+    - PARE.qmd
+    - href: KrigingRegionalMax.qmd
+      text: Additional Models
+    - href: Fit_GPD.qmd
+      text: Fitting GPD
+
+bibliography: DATA/ST_PARE/ST_PARE.bib
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+
