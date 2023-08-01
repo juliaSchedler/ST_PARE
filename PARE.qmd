@@ -1,0 +1,324 @@
+---
+execute:
+    freeze: true
+---
+
+# PARE model
+
+## Load data, functions, and packages
+
+```{r}
+#| label: setup
+#| message: false
+#| code-fold: true
+
+library(dplyr)
+library(sf)
+library(spdep)
+library(extRemes)
+library(ggplot2)
+
+thresh = 253
+
+stations <- read.csv("Data/station_info.csv")
+stat_nos <- stations[,1]
+
+source("Code/HelperFunctions_PARE/format_data.R")
+source("Code/HelperFunctions_PARE/jitter_n_sym.R")
+source("Code/HelperFunctions_PARE/get_sym_car_mat.R")
+source("Code/HelperFunctions_PARE/get_par_car.R")
+source("Code/HelperFunctions_PARE/get_se.R")
+source("Code/HelperFunctions_PARE/pars_to_rl.R")
+source("Code/HelperFunctions_PARE/rl_with_ci.R")
+source("Code/HelperFunctions_PARE/make_varcov_mats_car.R")
+source("Code/HelperFunctions_PARE/rl_ci_to_plot_vec.R")
+source("Code/HelperFunctions_PARE/create_mat.R")
+source("Code/HelperFunctions_PARE/win_rl_to_plot_dat.R")
+source("Code/HelperFunctions_PARE/get_latex_table.R")
+```
+
+## Format time series of GPD fits
+
+```{r}
+#| label: load_gpd
+#| eval: false
+
+## load watershed data
+ws_regs <- sf::read_sf("Data/watershed_region_updated")
+st_crs(ws_regs) <-sf::st_crs(2278)
+
+## window object generated in Fit_GPD.qmd
+## Load rolling GPD fits (takes a bit)
+window <- readRDS("Data/window_1day_dclust_updated.rds")  # list of lists (82 x 601) of GPD fits
+window_CVM <- readRDS("Data/window_CVM_updated.rds")
+window_AD <- readRDS("Data/window_AD_updated.rds")
+
+## Extract windows (note varying # stations)
+dat_win_22 <- format_data(window[[22]], stations, ws_regs, window_CVM[[22]]) # 34
+dat_win_52 <- format_data(window[[52]], stations, ws_regs, window_CVM[[52]]) # 28
+dat_win_82 <- format_data(window[[82]], stations, ws_regs, window_CVM[[82]]) # 149
+
+## save values (faster than reading entire window[[]] object)
+save(dat_win_22, file = "Data/dat_win_22")
+save(dat_win_52, file = "Data/dat_win_52")
+save(dat_win_82, file = "Data/dat_win_82")
+```
+
+```{r}
+#| label: load_gpd_precomputed
+#| echo: false
+#| eval: true
+#| message: false
+
+load("Data/dat_win_22")
+load("Data/dat_win_52")
+load("Data/dat_win_82")
+```
+
+## Construct spatial weight matrices
+
+::: {.callout-note collapse="true"}
+## Generating the Hausdorff matrix
+
+The `hausMat` function and additional documentation can be found in the [`hausdorff` Github repository](https://github.com/juliaSchedler/hausdorff).
+
+```{r}
+#| eval: false
+#| label: hausMat
+
+# (make sure ws_regs is projected first)
+distMat <- hausMat(ws_regs, f1 = 0.5)
+distMat/5280
+
+# save output
+# saveRDS(distMat, file = "~/Documents/GitHub/Spatial_Extreme_Value_Modeling/Data/hMat_med.rds")
+
+```
+:::
+
+```{r}
+#| label: weight-matrix
+# read in previously computed Hausdorff matrix and convert units to miles
+hMat <- readRDS(file = "Data/hMat_med.rds")
+hMat_miles <- hMat/5280
+
+## Create weight matrix for each window 
+## Accounts for different numbers of stations (varying point-to-area structure)
+## Jiters the values to give valid weight matrix
+set.seed(24)
+D_22 <- get_sym_car_mat(dat_win_22, hMat_miles)
+D_52 <- get_sym_car_mat(dat_win_52, hMat_miles)
+D_82 <- get_sym_car_mat(dat_win_82, hMat_miles)
+```
+
+## Fit models to each window for each parameter
+
+To obtain region-level estimates of the GPD parameters, fit a conditional auto-regressive model for each GPD parameter for each window, a total of 9 models.
+
+```{r}
+#| label: fit_car_windows
+#| eval: true
+
+## window 22
+## Fit models
+car_shape_22 <- spatialreg::spautolm(shape ~ -1 + Reg1 + Reg2 + Reg3, 
+                                     data = dat_win_22, family="CAR", 
+                                     listw=mat2listw(1/D_22, style = "C"))
+car_ln.scale_22 <- spatialreg::spautolm(log(scale) ~ -1 + Reg1 + Reg2 + Reg3, 
+                                        data = dat_win_22, family="CAR", 
+                                        listw=mat2listw(1/D_22,style = "C"))
+car_rate_22 <- spatialreg::spautolm(rate ~ -1 + Reg1 + Reg2 + Reg3, 
+                                    data = dat_win_22, family="CAR", 
+                                    listw=mat2listw(1/D_22, style = "C"))
+## extract parameter estimates
+par_22 <- get_par_car(car_ln.scale_22, car_shape_22, car_rate_22)
+se_22 <- get_se(car_ln.scale_22, car_shape_22, car_rate_22)[3,]
+car_varcov_22 <- make_varcov_mats_car(car_ln.scale_22, car_shape_22)  # se of scale 8.5, 4, 9.25
+st_devs_22 <- data.frame(Reg1 = c(sqrt(diag(car_varcov_22[[1]])), se_22[1]),
+                         Reg2 = c(sqrt(diag(car_varcov_22[[2]])), se_22[2]), 
+                         Reg3 = c(sqrt(diag(car_varcov_22[[3]])), se_22[3]))
+row.names(st_devs_22) <- row.names(par_22)
+
+
+
+## window 52
+## Fit models
+car_shape_52 <- spatialreg::spautolm(shape ~ -1 + Reg1 + Reg2 + Reg3, 
+                                     data = dat_win_52, family="CAR", 
+                                     listw=mat2listw(1/D_52, style = "C"))
+car_ln.scale_52 <- spatialreg::spautolm(log(scale) ~ -1 + Reg1 + Reg2 + Reg3, 
+                                        data = dat_win_52, family="CAR", 
+                                        listw=mat2listw(1/D_52, style = "C"))
+car_rate_52 <- spatialreg::spautolm(rate ~ -1 + Reg1 + Reg2 + Reg3, 
+                                    data = dat_win_52, family="CAR", 
+                                    listw=mat2listw(1/D_52, style = "C"))
+## Extract parameter estimates
+par_52 <- get_par_car(car_ln.scale_52, car_shape_52, car_rate_52)
+se_52 <- get_se(car_ln.scale_52, car_shape_52, car_rate_52)[3,]
+car_varcov_52 <- make_varcov_mats_car(car_ln.scale_52, car_shape_52)  # se of scale 8.5, 4, 9.25
+st_devs_52 <- data.frame(Reg1 = c(sqrt(diag(car_varcov_52[[1]])), se_52[1]),
+                         Reg2 = c(sqrt(diag(car_varcov_52[[2]])), se_52[2]), 
+                         Reg3 = c(sqrt(diag(car_varcov_52[[3]])), se_52[3]))
+
+## window 82
+## fit models
+car_shape_82 <- spatialreg::spautolm(shape ~ -1 + Reg1 + Reg2 + Reg3, 
+                                     data = dat_win_82, family="CAR", 
+                                     listw=mat2listw(1/D_82, style = "C"))
+car_ln.scale_82 <- spatialreg::spautolm(log(scale) ~ -1 + Reg1 + Reg2 + Reg3, 
+                                        data = dat_win_82, family="CAR", 
+                                        listw=mat2listw(1/D_82, style = "C"))
+car_rate_82 <- spatialreg::spautolm(rate ~ -1 + Reg1 + Reg2 + Reg3, 
+                                    data = dat_win_82, family="CAR", 
+                                    listw=mat2listw(1/D_82, style = "C"))
+## Extract parameter estiamtes
+par_82 <- get_par_car(car_ln.scale_82, car_shape_82, car_rate_82)
+se_82 <- get_se(car_ln.scale_82, car_shape_82, car_rate_82)[3,]
+car_varcov_82 <- make_varcov_mats_car(car_ln.scale_82, car_shape_82)  # se of scale 8.5, 4, 9.25
+st_devs_82 <- data.frame(Reg1 = c(sqrt(diag(car_varcov_82[[1]])), se_82[1]),
+                         Reg2 = c(sqrt(diag(car_varcov_82[[2]])), se_82[2]), 
+                         Reg3 = c(sqrt(diag(car_varcov_82[[3]])), se_82[3]))
+
+```
+
+### Table of parameter estimates
+
+```{r}
+#| label: par-table
+#| echo: false
+
+## PARE part of Table 4
+#get_latex_table(par_22, st_devs_22)
+print("Parameters")
+par_22
+print("Standard Errors")
+st_devs_22
+## PARE part of Table 5
+#get_latex_table(par_52, st_devs_52)
+print("Parameters")
+par_52
+print("Standard Errors")
+st_devs_52
+## PARE part of Table 2
+#get_latex_table(par_82, st_devs_82)
+print("Parameters")
+par_82
+print("Standard Errors")
+st_devs_82
+
+```
+
+## Calculate return levels + CIs
+
+```{r}
+#| label: return-levels
+### Estimates and CIs for visuals
+car_rl_25_22  <- rl_with_ci(par_mat = par_22, 
+                            varcov_list = car_varcov_22, 
+                            return_period = 25, 
+                            type = "ci", alpha = 0.05)/254
+car_rl_100_22 <- rl_with_ci(par_22, car_varcov_22, 100, "ci")/254
+car_rl_500_22 <- rl_with_ci(par_22, car_varcov_22, 500, "ci")/254
+
+car_rl_25_52  <- rl_with_ci(par_52, car_varcov_52, 25, "ci")/254
+car_rl_100_52 <- rl_with_ci(par_52, car_varcov_52, 100, "ci")/254
+car_rl_500_52 <- rl_with_ci(par_52, car_varcov_52, 500, "ci")/254
+
+car_rl_25_82  <- rl_with_ci(par_82, car_varcov_82, 25, "ci")/254
+car_rl_100_82 <- rl_with_ci(par_82, car_varcov_82, 100, "ci")/254
+car_rl_500_82 <- rl_with_ci(par_82, car_varcov_82, 500, "ci")/254
+
+win_1 <- rl_ci_to_plot_vec(car_rl_25_22, car_rl_100_22, car_rl_500_22)
+win_2 <- rl_ci_to_plot_vec(car_rl_25_52, car_rl_100_52, car_rl_500_52)
+win_3 <- rl_ci_to_plot_vec(car_rl_25_82, car_rl_100_82, car_rl_500_82)
+
+plot_dat <- win_rl_to_plot_dat(win_1, win_2, win_3)
+reg1 <- plot_dat[[1]] # Region 1 data frame for plotting
+reg2 <- plot_dat[[2]] 
+reg3 <- plot_dat[[3]] 
+
+
+```
+
+### Visualize return levels
+
+```{r}
+#| label: visualize
+
+ggplot(data=reg1, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+    geom_line(aes(y=RL_500, color="500-Year", linetype = "500-Year")) + geom_point(aes(y=RL_500, color="500-Year")) + geom_ribbon(aes(ymin=LB_500, ymax=UB_500), alpha=0.07, fill="darkblue") +
+    geom_line(aes(y=RL_100, color="100-Year", linetype = "100-Year")) + geom_point(aes(y=RL_100, color="100-Year"))+ geom_ribbon(aes(ymin=LB_100, ymax=UB_100), alpha=0.07, fill="blue") +
+    geom_line(aes(y=RL_25, color="25-Year", linetype = "25-Year")) + geom_point(aes(y=RL_25, color="25-Year")) + geom_ribbon(aes(ymin=LB_25, ymax=UB_25), alpha=0.15, fill="lightblue") +
+    labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 1") +
+    scale_colour_manual(name = "Return Period", values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_linetype_manual(values = c("500-Year" = 
+    "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
+
+
+ggplot(data=reg2, aes(x=c(1960, 1990, 2020))) + 
+  coord_cartesian(ylim = c(3, 41.5)) +
+  geom_line(aes(y=RL_500, color="500-Year", linetype = "500-Year")) + geom_point(aes(y=RL_500, color="500-Year")) + geom_ribbon(aes(ymin=LB_500, ymax=UB_500), alpha=0.07, fill="darkred") +
+  geom_line(aes(y=RL_100, color="100-Year", linetype = "100-Year")) + geom_point(aes(y=RL_100, color="100-Year"))+ geom_ribbon(aes(ymin=LB_100, ymax=UB_100), alpha=0.07, fill="red") +
+  geom_line(aes(y=RL_25, color="25-Year", linetype = "25-Year")) + geom_point(aes(y=RL_25, color="25-Year")) + geom_ribbon(aes(ymin=LB_25, ymax=UB_25), alpha=0.15, fill="pink") +
+  labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 2") +
+  scale_colour_manual(name = "Return Period", values = c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"),
+                      breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_linetype_manual(values = c("500-Year" = 
+    "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
+
+ggplot(data=reg3, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+    geom_line(aes(y=RL_500, color="500-Year", linetype = "500-Year")) + geom_point(aes(y=RL_500, color="500-Year")) + geom_ribbon(aes(ymin=LB_500, ymax=UB_500), alpha=0.3, fill="#256e3a") +
+    geom_line(aes(y=RL_100, color="100-Year", linetype = "100-Year")) + geom_point(aes(y=RL_100, color="100-Year"))+ geom_ribbon(aes(ymin=LB_100, ymax=UB_100), alpha=0.2, fill="#5d916c") +
+    geom_line(aes(y=RL_25, color="25-Year" , linetype = "25-Year")) + geom_point(aes(y=RL_25, color="25-Year")) + geom_ribbon(aes(ymin=LB_25, ymax=UB_25), alpha=0.15, fill="#44c96a") +
+    labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 3") +
+    scale_colour_manual(name = "Return Period",
+                        values = c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) +
+    scale_linetype_manual(values = c("500-Year" = 
+    "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
+
+
+```
+
+### Table of return levels
+
+```{r}
+#| label: rl-table
+
+## Table 6
+car_rl_25_22_se  <- rl_with_ci(par_mat = par_22, 
+                            varcov_list = car_varcov_22, 
+                            return_period = 25, 
+                            type = "se", alpha = 0.05)/254
+car_rl_100_22_se <- rl_with_ci(par_22, car_varcov_22, 100, "se")/254
+car_rl_500_22_se <- rl_with_ci(par_22, car_varcov_22, 500, "se")/254
+
+## latex output
+car_rl_22_list <- list(car_rl_25_22_se, car_rl_100_22_se, car_rl_500_22_se)
+get_latex_table_RL(car_rl_22_list)
+
+rbind(t(car_rl_25_22_se), t(car_rl_100_22_se), t(car_rl_500_22_se))
+
+## Table 7
+car_rl_25_52_se  <- rl_with_ci(par_52, car_varcov_52, 25, "se")/254
+car_rl_100_52_se <- rl_with_ci(par_52, car_varcov_52, 100, "se")/254
+car_rl_500_52_se <- rl_with_ci(par_52, car_varcov_52, 500, "se")/254
+
+# Latex output
+car_rl_52_list <- list(car_rl_25_52_se, car_rl_100_52_se, car_rl_500_52_se)
+get_latex_table_RL(car_rl_52_list)
+rbind(t(car_rl_25_52_se), t(car_rl_100_52_se), t(car_rl_500_52_se))
+
+## TABLE 3
+car_rl_25_82_se  <- rl_with_ci(par_82, car_varcov_82, 25, "se")/254
+car_rl_100_82_se <- rl_with_ci(par_82, car_varcov_82, 100, "se")/254
+car_rl_500_82_se <- rl_with_ci(par_82, car_varcov_82, 500, "se")/254
+
+# Latex output
+car_rl_82_list <- list(car_rl_25_82_se, car_rl_100_82_se, car_rl_500_82_se)
+get_latex_table_RL(car_rl_82_list)
+
+rbind(t(car_rl_25_82_se), t(car_rl_100_82_se), t(car_rl_500_82_se))
+```
