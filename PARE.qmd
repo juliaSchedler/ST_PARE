@@ -17,6 +17,7 @@ library(sf)
 library(spdep)
 library(extRemes)
 library(ggplot2)
+library(patchwork)
 
 thresh = 253
 
@@ -282,6 +283,322 @@ ggplot(data=reg3, aes(x=c(1960, 1990, 2020))) +
 
 ```
 
+### Suggested New Visualizations - Error Bars + Shading
+
+```{r}
+## define horizontal limits for error bars
+reg1$LB_X <- reg2$LB_X <- reg3$LB_X <- c(1957, 1987, 2017)
+reg1$UB_X <- reg2$UB_X <- reg3$UB_X <- c(1963, 1993, 2023)
+
+
+## Region 1
+ggplot(data=reg1, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    #geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    #geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    #geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "skyblue"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 23), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 1") + theme_minimal()
+
+## Region 2
+ggplot(data=reg2, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    #geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    #geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    #geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 23), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 2") + theme_minimal()
+
+
+## Region 3
+ggplot(data=reg3, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    #geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    #geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    #geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 23), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 3") + theme_minimal()
+
+
+
+
+```
+
+### Suggested New Visualizations - Error Bars + Shading
+
+```{r}
+## define horizontal limits for error bars
+reg1$LB_X <- reg2$LB_X <- reg3$LB_X <- c(1957, 1987, 2017)
+reg1$UB_X <- reg2$UB_X <- reg3$UB_X <- c(1963, 1993, 2023)
+
+## legend 
+g <- guides(fill = guide_legend(override.aes = list(color = c("black", "black", "black"),
+                                                    shape = c(15, 16, 18), 
+                                                    fill = c("black", "black", "black"),
+                                                    linetype = c(1,1,1),
+                                                    size = c(2,2,3)
+                                                    )))
+
+## Region 1
+reg1_plot <- ggplot(data=reg1, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    #geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 3) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_x_continuous(breaks = c(1960, 1990,2020)) +
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "skyblue"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="", y="Return Level (in)", title="Region 1") + theme_minimal() + theme(legend.position = "none")
+
+## Region 2
+reg2_plot <- ggplot(data=reg2, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 3) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_x_continuous(breaks = c(1960, 1990,2020)) +
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="Last Year of 40-Year Window", y="", title="Region 2") + theme_minimal() + g + theme(legend.position = "bottom")
+
+
+## Region 3
+reg3_plot <- ggplot(data=reg3, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 3) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_x_continuous(breaks = c(1960, 1990,2020)) +
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="", y="", title="Region 3") + theme_minimal() + theme(legend.position="none")
+
+
+reg1_plot + reg2_plot + reg3_plot +plot_layout(ncol = 3) + 
+  plot_annotation("Estimated Return Levels - PARE")
+```
+
+```{r}
+#| eval: false
+## OLD 
+## just errorbars
+ggplot(data=reg1, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    #geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    #geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 2) + 
+    #geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "skyblue"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 17), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 1") + theme_minimal()
+
+
+
+## OLD
+ggplot(data=reg1, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+    geom_point(aes(y=RL_500, color="500-Year")) + geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+
+    geom_point(aes(y=RL_100, color="100-Year"))+ geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year")) +
+    geom_point(aes(y=RL_25, color="25-Year")) + geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year")) +
+    scale_colour_manual(name = "Return Period", values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "twodash", "100-Year" = "dash", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+     labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 1") +
+     guides(colour = guide_legend(override.aes = list(shape = NA)))
+
+
+## define X axis limits
+reg1$LB_X = c(1957, 1987, 2017)
+reg1$UB_X = c(1963, 1993, 2023)
+
+ggplot(data=reg1, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.05)+
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2)  +
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.05)+
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.05)+
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 2) +
+    labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels and 95% Confidence Intervals - PARE Model- Region 1") +
+    scale_colour_manual(name = "Return Period", values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "skyblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 17), breaks = c('500-Year', '100-Year', '25-Year')) +theme_minimal()
+
+## shading and error bars
+ggplot(data=reg1, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "skyblue"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 17), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 1") + theme_minimal()
+
+## just errorbars
+ggplot(data=reg1, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    #geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    #geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    #geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "skyblue"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 17), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 1") + theme_minimal()
+
+
+ggplot(data=reg2, aes(x=c(1960, 1990, 2020))) + 
+  coord_cartesian(ylim = c(3, 41.5)) +
+  geom_point(aes(y=RL_500, color="500-Year")) + geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col ="500-Year", linetype = "500-Year")) +
+  geom_point(aes(y=RL_100, color="100-Year"))+ geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year")) +
+  geom_point(aes(y=RL_25, color="25-Year")) + geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year")) +
+  labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 2") +
+  scale_colour_manual(name = "Return Period", values = c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"),
+                      breaks = c('500-Year', '100-Year', '25-Year'))+
+  scale_linetype_manual(values = c("500-Year" = "twodash", "100-Year" = "longdash", "25-Year" = "solid"), 
+                        breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + 
+  guides(colour = guide_legend(override.aes = list(shape = NA)))
+
+ggplot(data=reg3, aes(x=c(1960, 1990, 2020))) + 
+  coord_cartesian(ylim = c(3, 41.5)) +
+  geom_point(aes(y=RL_500, color="500-Year")) + geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col ="500-Year", linetype = "500-Year")) +
+  geom_point(aes(y=RL_100, color="100-Year"))+ geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col = "100-Year", linetype = "100-Year")) +
+  geom_point(aes(y=RL_25, color="25-Year")) + geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col = "25-Year", linetype = "25-Year")) +
+  labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 3") +
+  scale_colour_manual(name = "Return Period",
+                        values = c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) +
+    scale_linetype_manual(values = c("500-Year" = 
+    "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
+```
+
 ### Table of return levels
 
 ```{r}
@@ -321,4 +638,374 @@ car_rl_82_list <- list(car_rl_25_82_se, car_rl_100_82_se, car_rl_500_82_se)
 get_latex_table_RL(car_rl_82_list)
 
 rbind(t(car_rl_25_82_se), t(car_rl_100_82_se), t(car_rl_500_82_se))
+```
+
+## Block Kriging
+
+### Read data for Block Kriging Return Level plots from Fagnant '21
+
+```{r}
+
+## read in values for Block Kriging-- read from Fagnant 2021
+reg1_bk <- data.frame(RL_25 = c(6.681,7.337,12.008), 
+                   RL_100 = c(8.472,9.900,17.277), 
+                   RL_500 = c(10.789,13.621,25.800))
+reg1_bk$LB_25 = reg1_bk$RL_25 - 1.96*c(1.578,0.670,2.266)
+reg1_bk$UB_25 = reg1_bk$RL_25 + 1.96*c(1.578,0.670,2.266)
+
+reg1_bk$LB_100 = reg1_bk$RL_100 - 1.96*c(2.630,1.244,4.485)
+reg1_bk$UB_100 = reg1_bk$RL_100 + 1.96*c(2.630,1.244,4.485)
+
+reg1_bk$LB_500 = reg1_bk$RL_500 - 1.96*c(4.319, 2.299,8.969)
+reg1_bk$UB_500 = reg1_bk$RL_500 + 1.96*c(4.319, 2.299,8.969)
+
+reg1_bk$LB_X <- c(1957, 1987, 2017)
+reg1_bk$UB_X <- c(1963, 1993, 2023)
+
+reg2_bk <- data.frame(RL_25 = c(7.523,6.289,11.210), 
+                   RL_100 = c(10.073,7.818,15.465), 
+                   RL_500 = c(13.717,9.728,21.911))
+
+reg2_bk$LB_25 = reg2_bk$RL_25 - 1.96*c(1.895, 0.462, 2.06)
+reg2_bk$UB_25 = reg2_bk$RL_25 + 1.96*c(1.895, 0.462, 2.06)
+
+reg2_bk$LB_100 = reg2_bk$RL_100 - 1.96*c(3.372,0.771,3.89)
+reg2_bk$UB_100 = reg2_bk$RL_100 + 1.96*c(3.372,0.771,3.89)
+
+reg2_bk$LB_500 = reg2_bk$RL_500 - 1.96*c(5.990, 1.260,7.36)
+reg2_bk$UB_500 = reg2_bk$RL_500 + 1.96*c(5.990, 1.260,7.36)
+
+reg2_bk$LB_X <- c(1957, 1987, 2017)
+reg2_bk$UB_X <- c(1963, 1993, 2023)
+
+
+reg3_bk <- data.frame(RL_25 = c(7.376,7.950,9.141), 
+                   RL_100 = c(9.784,10.650,11.865), 
+                   RL_500 = c(13.170,14.511,15.607))
+
+reg3_bk$LB_25 = reg3_bk$RL_25 - 1.96*c(1.885,0.823, 1.44)
+reg3_bk$UB_25 = reg3_bk$RL_25 + 1.96*c(1.885,0.823, 1.44)
+
+reg3_bk$LB_100 = reg3_bk$RL_100 - 1.96*c(3.335,1.511, 2.54)
+reg3_bk$UB_100 = reg3_bk$RL_100 + 1.96*c(3.335,1.511, 2.54)
+
+reg3_bk$LB_500 = reg3_bk$RL_500 - 1.96*c(5.870,2.757,4.44)
+reg3_bk$UB_500 = reg3_bk$RL_500 + 1.96*c(5.870,2.757,4.44)
+
+reg3_bk$LB_X <- c(1957, 1987, 2017)
+reg3_bk$UB_X <- c(1963, 1993, 2023)
+
+```
+
+### Block Kriging– Original plots
+
+```{r}
+ggplot(data=reg1_bk, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+    geom_line(aes(y=RL_500, color="500-Year", linetype = "500-Year")) + geom_point(aes(y=RL_500, color="500-Year")) + geom_ribbon(aes(ymin=LB_500, ymax=UB_500), alpha=0.07, fill="darkblue") +
+    geom_line(aes(y=RL_100, color="100-Year", linetype = "100-Year")) + geom_point(aes(y=RL_100, color="100-Year"))+ geom_ribbon(aes(ymin=LB_100, ymax=UB_100), alpha=0.07, fill="blue") +
+    geom_line(aes(y=RL_25, color="25-Year", linetype = "25-Year")) + geom_point(aes(y=RL_25, color="25-Year")) + geom_ribbon(aes(ymin=LB_25, ymax=UB_25), alpha=0.15, fill="lightblue") +
+    labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Block Kriging - Region 1") +
+    scale_colour_manual(name = "Return Period", values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_linetype_manual(values = c("500-Year" = 
+    "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
+
+
+ggplot(data=reg2_bk, aes(x=c(1960, 1990, 2020))) + 
+  coord_cartesian(ylim = c(3, 41.5)) +
+  geom_line(aes(y=RL_500, color="500-Year", linetype = "500-Year")) + geom_point(aes(y=RL_500, color="500-Year")) + geom_ribbon(aes(ymin=LB_500, ymax=UB_500), alpha=0.07, fill="darkred") +
+  geom_line(aes(y=RL_100, color="100-Year", linetype = "100-Year")) + geom_point(aes(y=RL_100, color="100-Year"))+ geom_ribbon(aes(ymin=LB_100, ymax=UB_100), alpha=0.07, fill="red") +
+  geom_line(aes(y=RL_25, color="25-Year", linetype = "25-Year")) + geom_point(aes(y=RL_25, color="25-Year")) + geom_ribbon(aes(ymin=LB_25, ymax=UB_25), alpha=0.15, fill="pink") +
+  labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Block Kriging - Region 2") +
+  scale_colour_manual(name = "Return Period", values = c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"),
+                      breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_linetype_manual(values = c("500-Year" = 
+    "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
+
+ggplot(data=reg3_bk, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+    geom_line(aes(y=RL_500, color="500-Year", linetype = "500-Year")) + geom_point(aes(y=RL_500, color="500-Year")) + geom_ribbon(aes(ymin=LB_500, ymax=UB_500), alpha=0.3, fill="#256e3a") +
+    geom_line(aes(y=RL_100, color="100-Year", linetype = "100-Year")) + geom_point(aes(y=RL_100, color="100-Year"))+ geom_ribbon(aes(ymin=LB_100, ymax=UB_100), alpha=0.2, fill="#5d916c") +
+    geom_line(aes(y=RL_25, color="25-Year" , linetype = "25-Year")) + geom_point(aes(y=RL_25, color="25-Year")) + geom_ribbon(aes(ymin=LB_25, ymax=UB_25), alpha=0.15, fill="#44c96a") +
+    labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Block Kriging - Region 3") +
+    scale_colour_manual(name = "Return Period",
+                        values = c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) +
+    scale_linetype_manual(values = c("500-Year" = 
+    "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
+```
+### Updated Plots
+
+```{r}
+## legend 
+g <- guides(fill = guide_legend(override.aes = list(color = c("black", "black", "black"),
+                                                    shape = c(15, 16, 18), 
+                                                    fill = c("black", "black", "black"),
+                                                    linetype = c(1,1,1),
+                                                    size = c(2,2,3)
+                                                    )))
+
+## Region 1
+reg1_bk_plot <- ggplot(data=reg1_bk, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    #geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 3) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_x_continuous(breaks = c(1960, 1990,2020)) +
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "skyblue"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="", y="Return Level (in)", title="Region 1") + theme_minimal() + theme(legend.position = "none")
+
+## Region 2
+reg2_bk_plot <- ggplot(data=reg2_bk, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 3) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_x_continuous(breaks = c(1960, 1990,2020)) +
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="Last Year of 40-Year Window", y="", title="Region 2") + theme_minimal() + g + theme(legend.position = "bottom")
+
+
+## Region 3
+reg3_bk_plot <- ggplot(data=reg3_bk, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 3) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_x_continuous(breaks = c(1960, 1990,2020)) +
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="", y="", title="Region 3") + theme_minimal() + theme(legend.position="none")
+
+
+reg1_bk_plot + reg2_bk_plot + reg3_bk_plot +plot_layout(ncol = 3) + plot_annotation("Estimated Return Levels - Block Kriging")
+```
+
+
+## Regional Max
+
+### Read data for Regional Max Return Level plots from Fagnant '21
+
+```{r}
+
+## read in values for Regional Max-- read from Fagnant 2021
+reg1_rm <- data.frame(RL_25 = c(9.349, 9.552, 12.96), 
+                   RL_100 = c(12.073, 12.295, 17.54), 
+                   RL_500 = c(15.759, 15.999, 24.23))
+reg1_rm$LB_25 = reg1_rm$RL_25 - 1.96*c(1.354, 0.854, 1.33)
+reg1_rm$UB_25 = reg1_rm$RL_25 + 1.96*c(1.354, 0.854, 1.33)
+
+reg1_rm$LB_100 = reg1_rm$RL_100 - 1.96*c(2.341, 1.455, 2.39)
+reg1_rm$UB_100 = reg1_rm$RL_100 + 1.96*c(2.341, 1.455, 2.39)
+
+reg1_rm$LB_500 = reg1_rm$RL_500 - 1.96*c(4.016, 2.470, 4.32)
+reg1_rm$UB_500 = reg1_rm$RL_500 + 1.96*c(4.016, 2.470, 4.32)
+
+reg1_rm$LB_X <- c(1957, 1987, 2017)
+reg1_rm$UB_X <- c(1963, 1993, 2023)
+
+reg2_rm <- data.frame(RL_25 = c(10.895, 11.858, 14.68), 
+                   RL_100 = c(15.050, 15.272, 19.68), 
+                   RL_500 = c(21.297, 19.852, 26.83))
+
+reg2_rm$LB_25 = reg2_rm$RL_25 - 1.96*c(1.283, 1.025, 1.44)
+reg2_rm$UB_25 = reg2_rm$RL_25 + 1.96*c(1.283, 1.025, 1.44)
+
+reg2_rm$LB_100 = reg2_rm$RL_100 - 1.96*c(2.402, 1.730, 2.53)
+reg2_rm$UB_100 = reg2_rm$RL_100 + 1.96*c(2.402, 1.730, 2.53)
+
+reg2_rm$LB_500 = reg2_rm$RL_500 - 1.96*c(4.517,2.909,4.48)
+reg2_rm$UB_500 = reg2_rm$RL_500 + 1.96*c(4.517,2.909,4.48)
+
+reg2_rm$LB_X <- c(1957, 1987, 2017)
+reg2_rm$UB_X <- c(1963, 1993, 2023)
+
+
+reg3_rm <- data.frame(RL_25 = c(10.037,11.636, 13.75), 
+                   RL_100 = c(13.553, 16.109, 18.37), 
+                   RL_500 = c(18.659, 22.889, 24.94))
+
+reg3_rm$LB_25 = reg3_rm$RL_25 - 1.96*c(1.179, 1.381, 1.35)
+reg3_rm$UB_25 = reg3_rm$RL_25 + 1.96*c(1.179, 1.381, 1.35)
+
+reg3_rm$LB_100 = reg3_rm$RL_100 - 1.96*c(2.161,2.578, 2.39)
+reg3_rm$UB_100 = reg3_rm$RL_100 + 1.96*c(2.161,2.578, 2.39)
+
+reg3_rm$LB_500 = reg3_rm$RL_500 - 1.96*c(3.956, 4.847, 4.22)
+reg3_rm$UB_500 = reg3_rm$RL_500 + 1.96*c(3.956, 4.847, 4.22)
+
+reg3_rm$LB_X <- c(1957, 1987, 2017)
+reg3_rm$UB_X <- c(1963, 1993, 2023)
+
+```
+
+### Regional Max– Original plots
+
+```{r}
+ggplot(data=reg1_rm, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+    geom_line(aes(y=RL_500, color="500-Year", linetype = "500-Year")) + geom_point(aes(y=RL_500, color="500-Year")) + geom_ribbon(aes(ymin=LB_500, ymax=UB_500), alpha=0.07, fill="darkblue") +
+    geom_line(aes(y=RL_100, color="100-Year", linetype = "100-Year")) + geom_point(aes(y=RL_100, color="100-Year"))+ geom_ribbon(aes(ymin=LB_100, ymax=UB_100), alpha=0.07, fill="blue") +
+    geom_line(aes(y=RL_25, color="25-Year", linetype = "25-Year")) + geom_point(aes(y=RL_25, color="25-Year")) + geom_ribbon(aes(ymin=LB_25, ymax=UB_25), alpha=0.15, fill="lightblue") +
+    labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Regional Max - Region 1") +
+    scale_colour_manual(name = "Return Period", values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_linetype_manual(values = c("500-Year" = 
+    "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
+
+
+ggplot(data=reg2_rm, aes(x=c(1960, 1990, 2020))) + 
+  coord_cartesian(ylim = c(3, 41.5)) +
+  geom_line(aes(y=RL_500, color="500-Year", linetype = "500-Year")) + geom_point(aes(y=RL_500, color="500-Year")) + geom_ribbon(aes(ymin=LB_500, ymax=UB_500), alpha=0.07, fill="darkred") +
+  geom_line(aes(y=RL_100, color="100-Year", linetype = "100-Year")) + geom_point(aes(y=RL_100, color="100-Year"))+ geom_ribbon(aes(ymin=LB_100, ymax=UB_100), alpha=0.07, fill="red") +
+  geom_line(aes(y=RL_25, color="25-Year", linetype = "25-Year")) + geom_point(aes(y=RL_25, color="25-Year")) + geom_ribbon(aes(ymin=LB_25, ymax=UB_25), alpha=0.15, fill="pink") +
+  labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Regional Max - Region 2") +
+  scale_colour_manual(name = "Return Period", values = c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"),
+                      breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_linetype_manual(values = c("500-Year" =  "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
+
+ggplot(data=reg3_rm, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+    geom_line(aes(y=RL_500, color="500-Year", linetype = "500-Year")) + geom_point(aes(y=RL_500, color="500-Year")) + geom_ribbon(aes(ymin=LB_500, ymax=UB_500), alpha=0.3, fill="#256e3a") +
+    geom_line(aes(y=RL_100, color="100-Year", linetype = "100-Year")) + geom_point(aes(y=RL_100, color="100-Year"))+ geom_ribbon(aes(ymin=LB_100, ymax=UB_100), alpha=0.2, fill="#5d916c") +
+    geom_line(aes(y=RL_25, color="25-Year" , linetype = "25-Year")) + geom_point(aes(y=RL_25, color="25-Year")) + geom_ribbon(aes(ymin=LB_25, ymax=UB_25), alpha=0.15, fill="#44c96a") +
+    labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Regional Max - Region 3") +
+    scale_colour_manual(name = "Return Period",
+                        values = c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) +
+    scale_linetype_manual(values = c("500-Year" = 
+    "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
+```
+### Regional Max-- updated plots
+
+```{r}
+## legend 
+g <- guides(fill = guide_legend(override.aes = list(color = c("black", "black", "black"),
+                                                    shape = c(15, 16, 18), 
+                                                    fill = c("black", "black", "black"),
+                                                    linetype = c(1,1,1),
+                                                    size = c(2,2,3)
+                                                    )))
+
+## Region 1
+reg1_rm_plot <- ggplot(data=reg1_rm, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    #geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 3) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_x_continuous(breaks = c(1960, 1990,2020)) +
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "skyblue"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="", y="Return Level (in)", title="Region 1") + theme_minimal() + theme(legend.position = "none")
+
+## Region 2
+reg2_rm_plot <- ggplot(data=reg2_rm, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 3) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_x_continuous(breaks = c(1960, 1990,2020)) +
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="Last Year of 40-Year Window", y="", title="Region 2") + theme_minimal() + g + theme(legend.position = "bottom")
+
+
+## Region 3
+reg3_rm_plot <- ggplot(data=reg3_rm, aes(x=c(1960, 1990, 2020))) + 
+    coord_cartesian(ylim = c(3, 41.5)) +
+  ## 500 year
+    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
+    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
+    geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
+  ## 100 year
+    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
+    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
+    geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
+  ##25 year
+    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 3) + 
+    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
+    geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
+    scale_x_continuous(breaks = c(1960, 1990,2020)) +
+    scale_colour_manual(name = "Return Period", 
+                        values = c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"),
+                        breaks = c('500-Year', '100-Year', '25-Year')) + 
+    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
+                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
+  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"), breaks = c('500-Year', '100-Year', '25-Year'))+
+    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
+     labs(x="", y="", title="Region 3") + theme_minimal() + theme(legend.position="none")
+
+
+reg1_rm_plot + reg2_rm_plot + reg3_rm_plot +plot_layout(ncol = 3) + plot_annotation("Estimated Return Levels - Regional Max")
 ```
