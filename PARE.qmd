@@ -283,93 +283,7 @@ ggplot(data=reg3, aes(x=c(1960, 1990, 2020))) +
 
 ```
 
-### Suggested New Visualizations - Error Bars + Shading
-
-```{r}
-## define horizontal limits for error bars
-reg1$LB_X <- reg2$LB_X <- reg3$LB_X <- c(1957, 1987, 2017)
-reg1$UB_X <- reg2$UB_X <- reg3$UB_X <- c(1963, 1993, 2023)
-
-
-## Region 1
-ggplot(data=reg1, aes(x=c(1960, 1990, 2020))) + 
-    coord_cartesian(ylim = c(3, 41.5)) +
-  ## 500 year
-    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
-    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
-    #geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
-  ## 100 year
-    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
-    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
-    #geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
-  ##25 year
-    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 2) + 
-    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
-    #geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
-    scale_colour_manual(name = "Return Period", 
-                        values = c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "skyblue"),
-                        breaks = c('500-Year', '100-Year', '25-Year')) + 
-    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
-                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
-  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
-    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 23), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 1") + theme_minimal()
-
-## Region 2
-ggplot(data=reg2, aes(x=c(1960, 1990, 2020))) + 
-    coord_cartesian(ylim = c(3, 41.5)) +
-  ## 500 year
-    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
-    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
-    #geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
-  ## 100 year
-    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
-    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
-    #geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
-  ##25 year
-    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 2) + 
-    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
-    #geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
-    scale_colour_manual(name = "Return Period", 
-                        values = c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"),
-                        breaks = c('500-Year', '100-Year', '25-Year')) + 
-    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
-                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
-  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"), breaks = c('500-Year', '100-Year', '25-Year'))+
-    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 23), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 2") + theme_minimal()
-
-
-## Region 3
-ggplot(data=reg3, aes(x=c(1960, 1990, 2020))) + 
-    coord_cartesian(ylim = c(3, 41.5)) +
-  ## 500 year
-    geom_point(aes(y=RL_500, color="500-Year", shape = "500-Year"), size = 2) + 
-    geom_errorbar(aes(ymin=LB_500, ymax=UB_500, col="500-Year", linetype = "500-Year"), width = 6)+ 
-    #geom_rect(aes(ymin=LB_500, ymax=UB_500,xmin = LB_X, xmax = UB_X, fill="500-Year"), alpha=0.1)+
-  ## 100 year
-    geom_point(aes(y=RL_100, color="100-Year", shape = "100-Year"), size = 2)+ 
-    geom_errorbar(aes(ymin=LB_100, ymax=UB_100, col="100-Year", linetype = "100-Year"), width = 6) +     
-    #geom_rect(aes(ymin=LB_100, ymax=UB_100,xmin = LB_X, xmax = UB_X, fill="100-Year"), alpha=0.1)+
-  ##25 year
-    geom_point(aes(y=RL_25, color="25-Year", shape = "25-Year"), size = 2) + 
-    geom_errorbar(aes(ymin=LB_25, ymax=UB_25, col="25-Year", linetype = "25-Year"), width = 6) +
-    #geom_rect(aes(ymin=LB_25, ymax=UB_25,xmin = LB_X, xmax = UB_X, fill="25-Year"), alpha=0.1)+
-    scale_colour_manual(name = "Return Period", 
-                        values = c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"),
-                        breaks = c('500-Year', '100-Year', '25-Year')) + 
-    scale_linetype_manual(values = c("500-Year" = "solid", "100-Year" = "solid", "25-Year" = "solid"),
-                          breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
-  scale_fill_manual(name = "Return Period", values =  c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"), breaks = c('500-Year', '100-Year', '25-Year'))+
-    scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 23), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="Last Year of 40-Year Window", y="Return Level (in)", title="Estimated Return Levels - Model 1 - Region 3") + theme_minimal()
-
-
-
-
-```
-
-### Suggested New Visualizations - Error Bars + Shading
+### Updated Visualizations
 
 ```{r}
 ## define horizontal limits for error bars
@@ -407,7 +321,11 @@ reg1_plot <- ggplot(data=reg1, aes(x=c(1960, 1990, 2020))) +
                           breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
   scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
     scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="", y="Return Level (in)", title="Region 1") + theme_minimal() + theme(legend.position = "none")
+     labs(x="", y="Return Level (in)", title="Region 1") + theme_minimal() +   theme(legend.position="none",  
+        axis.text.y = element_text(size = 15), 
+        axis.text.x = element_text(size = 12), 
+        axis.title.x = element_text(size = 15), 
+        title = element_text(size = 15))
 
 ## Region 2
 reg2_plot <- ggplot(data=reg2, aes(x=c(1960, 1990, 2020))) + 
@@ -432,7 +350,12 @@ reg2_plot <- ggplot(data=reg2, aes(x=c(1960, 1990, 2020))) +
                           breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
   scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"), breaks = c('500-Year', '100-Year', '25-Year'))+
     scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="Last Year of 40-Year Window", y="", title="Region 2") + theme_minimal() + g + theme(legend.position = "bottom")
+     labs(x="Last Year of 40-Year Window", y="", title="Region 2") + theme_minimal() + g +   theme(legend.position="bottom",  
+        axis.text.y = element_text(size = 15), 
+        axis.text.x = element_text(size = 12), 
+        axis.title.x = element_text(size = 15), 
+        title = element_text(size = 15))
+
 
 
 ## Region 3
@@ -458,11 +381,22 @@ reg3_plot <- ggplot(data=reg3, aes(x=c(1960, 1990, 2020))) +
                           breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
   scale_fill_manual(name = "Return Period", values =  c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"), breaks = c('500-Year', '100-Year', '25-Year'))+
     scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="", y="", title="Region 3") + theme_minimal() + theme(legend.position="none")
+     labs(x="", y="", title="Region 3") + theme_minimal() + 
+    theme(legend.position="none",  
+        axis.text.y = element_text(size = 15), 
+        axis.text.x = element_text(size = 12), 
+        axis.title.x = element_text(size = 15), 
+        title = element_text(size = 15))
 
 
-reg1_plot + reg2_plot + reg3_plot +plot_layout(ncol = 3) + 
-  plot_annotation("Estimated Return Levels - PARE")
+
+
+
+PARE_plot = reg1_plot + reg2_plot + reg3_plot +plot_layout(ncol = 3) + 
+  plot_annotation("Estimated Return Levels - PARE") & theme(plot.title = element_text(size = 15))
+
+ggsave("Images/PARE_plot.png", plot = PARE_plot, width = 7.5, height = 3.5, units = "in")
+
 ```
 
 ```{r}
@@ -734,6 +668,7 @@ ggplot(data=reg3_bk, aes(x=c(1960, 1990, 2020))) +
     scale_linetype_manual(values = c("500-Year" = 
     "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
 ```
+
 ### Updated Plots
 
 ```{r}
@@ -768,7 +703,12 @@ reg1_bk_plot <- ggplot(data=reg1_bk, aes(x=c(1960, 1990, 2020))) +
                           breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
   scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
     scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="", y="Return Level (in)", title="Region 1") + theme_minimal() + theme(legend.position = "none")
+     labs(x="", y="Return Level (in)", title="Region 1") + theme_minimal() +   theme(legend.position="none",  
+        axis.text.y = element_text(size = 15), 
+        axis.text.x = element_text(size = 12), 
+        axis.title.x = element_text(size = 15), 
+        title = element_text(size = 15))
+
 
 ## Region 2
 reg2_bk_plot <- ggplot(data=reg2_bk, aes(x=c(1960, 1990, 2020))) + 
@@ -793,7 +733,12 @@ reg2_bk_plot <- ggplot(data=reg2_bk, aes(x=c(1960, 1990, 2020))) +
                           breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
   scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"), breaks = c('500-Year', '100-Year', '25-Year'))+
     scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="Last Year of 40-Year Window", y="", title="Region 2") + theme_minimal() + g + theme(legend.position = "bottom")
+     labs(x="Last Year of 40-Year Window", y="", title="Region 2") + theme_minimal() + g +   theme(legend.position="bottom",  
+        axis.text.y = element_text(size = 15), 
+        axis.text.x = element_text(size = 12), 
+        axis.title.x = element_text(size = 15), 
+        title = element_text(size = 15))
+
 
 
 ## Region 3
@@ -819,12 +764,21 @@ reg3_bk_plot <- ggplot(data=reg3_bk, aes(x=c(1960, 1990, 2020))) +
                           breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
   scale_fill_manual(name = "Return Period", values =  c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"), breaks = c('500-Year', '100-Year', '25-Year'))+
     scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="", y="", title="Region 3") + theme_minimal() + theme(legend.position="none")
+     labs(x="", y="", title="Region 3") + theme_minimal() + 
+  theme(legend.position="none",  
+        axis.text.y = element_text(size = 15), 
+        axis.text.x = element_text(size = 12), 
+        axis.title.x = element_text(size = 15), 
+        title = element_text(size = 15))
 
 
-reg1_bk_plot + reg2_bk_plot + reg3_bk_plot +plot_layout(ncol = 3) + plot_annotation("Estimated Return Levels - Block Kriging")
+
+
+
+BK_plot = reg1_bk_plot + reg2_bk_plot + reg3_bk_plot +plot_layout(ncol = 3) + plot_annotation("Estimated Return Levels - Block Kriging") & theme(plot.title = element_text(size = 15))
+
+ggsave("Images/BK_plot.png", plot = BK_plot, width = 7.5, height = 3.5, units = "in")
 ```
-
 
 ## Regional Max
 
@@ -919,7 +873,8 @@ ggplot(data=reg3_rm, aes(x=c(1960, 1990, 2020))) +
     scale_linetype_manual(values = c("500-Year" = 
     "twodash", "100-Year" = "longdash", "25-Year" = "solid"), breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") + guides(colour = guide_legend(override.aes = list(shape = NA)))
 ```
-### Regional Max-- updated plots
+
+### Updated plots
 
 ```{r}
 ## legend 
@@ -953,7 +908,12 @@ reg1_rm_plot <- ggplot(data=reg1_rm, aes(x=c(1960, 1990, 2020))) +
                           breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
   scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkblue", '100-Year' = "blue", '25-Year' = "lightblue"), breaks = c('500-Year', '100-Year', '25-Year'))+
     scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="", y="Return Level (in)", title="Region 1") + theme_minimal() + theme(legend.position = "none")
+     labs(x="", y="Return Level (in)", title="Region 1") + theme_minimal() +
+    theme(legend.position="none",  
+        axis.text.y = element_text(size = 15), 
+        axis.text.x = element_text(size = 12), 
+        axis.title.x = element_text(size = 15), 
+        title = element_text(size = 15))
 
 ## Region 2
 reg2_rm_plot <- ggplot(data=reg2_rm, aes(x=c(1960, 1990, 2020))) + 
@@ -978,7 +938,11 @@ reg2_rm_plot <- ggplot(data=reg2_rm, aes(x=c(1960, 1990, 2020))) +
                           breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
   scale_fill_manual(name = "Return Period", values =  c('500-Year' = "darkred", '100-Year' = "red", '25-Year' = "pink"), breaks = c('500-Year', '100-Year', '25-Year'))+
     scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="Last Year of 40-Year Window", y="", title="Region 2") + theme_minimal() + g + theme(legend.position = "bottom")
+     labs(x="Last Year of 40-Year Window", y="", title="Region 2") + theme_minimal() + g +   theme(legend.position="bottom",  
+        axis.text.y = element_text(size = 15), 
+        axis.text.x = element_text(size = 12), 
+        axis.title.x = element_text(size = 15), 
+        title = element_text(size = 15))
 
 
 ## Region 3
@@ -1004,8 +968,18 @@ reg3_rm_plot <- ggplot(data=reg3_rm, aes(x=c(1960, 1990, 2020))) +
                           breaks = c('500-Year', '100-Year', '25-Year'), name = "Return Period") +
   scale_fill_manual(name = "Return Period", values =  c('500-Year' = "#256e3a", '100-Year' = "#5d916c", '25-Year' = "#44c96a"), breaks = c('500-Year', '100-Year', '25-Year'))+
     scale_shape_manual(name = "Return Period", values = c('500-Year' = 15, '100-Year' = 16, '25-Year' = 18), breaks = c('500-Year', '100-Year', '25-Year')) +
-     labs(x="", y="", title="Region 3") + theme_minimal() + theme(legend.position="none")
+     labs(x="", y="", title="Region 3") + theme_minimal() + 
+  theme(legend.position="none",  
+        axis.text.y = element_text(size = 15), 
+        axis.text.x = element_text(size = 12), 
+        axis.title.x = element_text(size = 15), 
+        title = element_text(size = 15))
 
 
-reg1_rm_plot + reg2_rm_plot + reg3_rm_plot +plot_layout(ncol = 3) + plot_annotation("Estimated Return Levels - Regional Max")
+Regmax_plot = reg1_rm_plot + reg2_rm_plot + reg3_rm_plot +plot_layout(ncol = 3) + plot_annotation("Estimated Return Levels - Regional Max") & theme(plot.title = element_text(size = 15))
+
+Regmax_plot
+
+ggsave("Images/Regmax_plot.png", plot = Regmax_plot, width = 7.5, height = 3.5, units = "in")
+
 ```
