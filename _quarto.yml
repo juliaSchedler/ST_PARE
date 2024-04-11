@@ -18,8 +18,6 @@ bibliography: DATA/ST_PARE/ST_PARE.bib
 format:
   html:
     theme: cosmo
-  pdf:
-    documentclass: scrreprt
 
 editor: visual
 
